@@ -47,9 +47,32 @@ export default function Home() {
   };
 
   const handleTimeframeChange = async (newTimeframe: Timeframe) => {
+    const oldTimeframe = timeframe;
     setTimeframe(newTimeframe);
     if (ticker) {
-      await fetchData(ticker);
+      // Fetch with new timeframe
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [marketData, keyLevelsData] = await Promise.all([
+          api.getMarketData(ticker, newTimeframe),
+          api.getKeyLevels(ticker, newTimeframe),
+        ]);
+
+        setData(marketData.data);
+        setZones(keyLevelsData.zones);
+      } catch (err: any) {
+        console.error('Error fetching data:', err);
+        setError(
+          err.response?.data?.detail ||
+            err.message ||
+            'Failed to fetch data.'
+        );
+        setTimeframe(oldTimeframe); // Revert on error
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

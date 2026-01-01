@@ -5,6 +5,7 @@ API Routes for KeyLevels AI
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 from datetime import datetime
+import pandas as pd
 
 from app.schemas.market_data import (
     MarketDataResponse,
@@ -16,6 +17,7 @@ from app.schemas.market_data import (
 )
 from app.services.data_provider import get_data_provider
 from app.services.key_levels import KeyLevelsDetector
+from app.services.institutional_key_levels import InstitutionalKeyLevels
 from app.services.cache import cache
 from app.core.config import settings
 
@@ -70,6 +72,12 @@ async def get_market_data(
                 detail=f"No data found for ticker: {ticker}"
             )
 
+        # Calculate EMAs (10, 20, 50, 200)
+        df['ema_10'] = df['close'].ewm(span=10, adjust=False).mean()
+        df['ema_20'] = df['close'].ewm(span=20, adjust=False).mean()
+        df['ema_50'] = df['close'].ewm(span=50, adjust=False).mean()
+        df['ema_200'] = df['close'].ewm(span=200, adjust=False).mean()
+
         # Convert to response format
         ohlcv_list = []
         for timestamp, row in df.iterrows():
@@ -79,7 +87,11 @@ async def get_market_data(
                 high=float(row['high']),
                 low=float(row['low']),
                 close=float(row['close']),
-                volume=float(row['volume'])
+                volume=float(row['volume']),
+                ema_10=float(row['ema_10']) if not pd.isna(row['ema_10']) else None,
+                ema_20=float(row['ema_20']) if not pd.isna(row['ema_20']) else None,
+                ema_50=float(row['ema_50']) if not pd.isna(row['ema_50']) else None,
+                ema_200=float(row['ema_200']) if not pd.isna(row['ema_200']) else None,
             ))
 
         response = MarketDataResponse(
@@ -152,15 +164,17 @@ async def get_key_levels(
                 detail=f"No data found for ticker: {ticker}"
             )
 
-        # Detect key levels
-        detector = KeyLevelsDetector(
-            pivot_window=pivot_window,
-            atr_period=settings.ATR_PERIOD,
-            atr_multiplier=settings.ATR_MULTIPLIER,
-            max_zones=max_zones
+        # Use institutional-grade key levels detector - STRICT MODE
+        detector = InstitutionalKeyLevels(
+            min_touches=3,  # Minimum 3 confirmations (stricter)
+            min_reaction_atr=2.0,  # Only very strong reactions (stricter)
+            volume_threshold_percentile=75,  # Only highest volume nodes (stricter)
+            max_levels=5,  # Maximum 3-5 major levels only
+            merge_tolerance_atr=0.8,  # Merge nearby levels more aggressively
+            broken_level_invalidation=True  # Remove broken levels
         )
 
-        zones_data = detector.detect_zones(df)
+        zones_data = detector.detect_levels(df, timeframe=tf)
 
         # Convert to schema
         zones = [KeyZone(**zone) for zone in zones_data]

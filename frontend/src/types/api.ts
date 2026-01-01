@@ -9,16 +9,25 @@ export interface OHLCVData {
   low: number;
   close: number;
   volume: number;
+  ema_10?: number;
+  ema_20?: number;
+  ema_50?: number;
+  ema_200?: number;
 }
 
 export interface KeyZone {
   id: string;
-  type: 'support' | 'resistance' | 'pivot';
+  type: 'support' | 'resistance' | 'pivot' | 'equilibrium';
   price_low: number;
   price_high: number;
   strength: number; // 0-1 normalized score
+  confidence?: number; // 0-100% confidence score
   touches: number;
   last_touch_time?: number; // Unix timestamp
+  reaction_strength?: number;
+  avg_volume?: number;
+  consolidation_strength?: number;
+  structure_type?: string;
 }
 
 export interface MarketDataResponse {

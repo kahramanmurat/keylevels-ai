@@ -11,17 +11,26 @@ class OHLCVData(BaseModel):
     low: float
     close: float
     volume: float
+    ema_10: Optional[float] = None
+    ema_20: Optional[float] = None
+    ema_50: Optional[float] = None
+    ema_200: Optional[float] = None
 
 
 class KeyZone(BaseModel):
     """Support/Resistance zone"""
     id: str
-    type: Literal["support", "resistance", "pivot"]
+    type: Literal["support", "resistance", "pivot", "equilibrium"]
     price_low: float = Field(..., description="Bottom of the zone")
     price_high: float = Field(..., description="Top of the zone")
     strength: float = Field(..., ge=0, le=1, description="Zone strength score 0-1")
+    confidence: Optional[float] = Field(None, ge=0, le=100, description="Confidence score 0-100%")
     touches: int = Field(..., description="Number of price touches")
     last_touch_time: Optional[int] = None  # Unix timestamp
+    reaction_strength: Optional[float] = None  # ATR multiples
+    avg_volume: Optional[float] = None  # Average volume at level
+    consolidation_strength: Optional[float] = None
+    structure_type: Optional[str] = None
 
 
 class MarketDataResponse(BaseModel):

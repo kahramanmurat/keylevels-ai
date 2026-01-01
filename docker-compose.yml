@@ -29,6 +29,7 @@ services:
       DATABASE_URL: postgresql://keylevels:keylevels_dev_password@postgres:5432/keylevels
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: development
+      ALPHA_VANTAGE_API_KEY: ${ALPHA_VANTAGE_API_KEY:-demo}
     volumes:
       - ./backend:/app
       - /app/__pycache__

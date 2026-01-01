@@ -81,7 +81,7 @@ export default function TickerSearch({ onSearch, loading = false }: TickerSearch
               key={ticker}
               type="button"
               onClick={() => handleSuggestionClick(ticker)}
-              className="w-full px-4 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
+              className="w-full px-4 py-2 text-left text-gray-900 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none font-medium"
             >
               {ticker}
             </button>
