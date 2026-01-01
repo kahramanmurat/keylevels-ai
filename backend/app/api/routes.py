@@ -78,6 +78,20 @@ async def get_market_data(
         df['ema_50'] = df['close'].ewm(span=50, adjust=False).mean()
         df['ema_200'] = df['close'].ewm(span=200, adjust=False).mean()
 
+        # Calculate MACD (12, 26, 9)
+        ema_12 = df['close'].ewm(span=12, adjust=False).mean()
+        ema_26 = df['close'].ewm(span=26, adjust=False).mean()
+        df['macd'] = ema_12 - ema_26
+        df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
+        df['macd_histogram'] = df['macd'] - df['macd_signal']
+
+        # Calculate RSI (14 periods)
+        delta = df['close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        df['rsi'] = 100 - (100 / (1 + rs))
+
         # Convert to response format
         ohlcv_list = []
         for timestamp, row in df.iterrows():
@@ -92,6 +106,10 @@ async def get_market_data(
                 ema_20=float(row['ema_20']) if not pd.isna(row['ema_20']) else None,
                 ema_50=float(row['ema_50']) if not pd.isna(row['ema_50']) else None,
                 ema_200=float(row['ema_200']) if not pd.isna(row['ema_200']) else None,
+                macd=float(row['macd']) if not pd.isna(row['macd']) else None,
+                macd_signal=float(row['macd_signal']) if not pd.isna(row['macd_signal']) else None,
+                macd_histogram=float(row['macd_histogram']) if not pd.isna(row['macd_histogram']) else None,
+                rsi=float(row['rsi']) if not pd.isna(row['rsi']) else None,
             ))
 
         response = MarketDataResponse(

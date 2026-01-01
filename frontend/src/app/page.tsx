@@ -7,7 +7,7 @@ import TradingViewChart from '@/components/TradingViewChart';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { api } from '@/lib/api';
 import type { Timeframe, OHLCVData, KeyZone } from '@/types/api';
-import { AlertCircle, TrendingUp, ToggleLeft, ToggleRight } from 'lucide-react';
+import { AlertCircle, TrendingUp, ToggleLeft, ToggleRight, Moon, Sun, Eye, EyeOff } from 'lucide-react';
 
 export default function Home() {
   const [ticker, setTicker] = useState('');
@@ -17,6 +17,8 @@ export default function Home() {
   const [data, setData] = useState<OHLCVData[]>([]);
   const [zones, setZones] = useState<KeyZone[]>([]);
   const [showZones, setShowZones] = useState(true);
+  const [showEmas, setShowEmas] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   const fetchData = async (searchTicker: string) => {
     setLoading(true);
@@ -117,22 +119,52 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Show/Hide Zones Toggle */}
+          {/* Chart Controls Toggle */}
           {data.length > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <button
-                onClick={() => setShowZones(!showZones)}
-                className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors"
-              >
-                {showZones ? (
-                  <ToggleRight className="w-6 h-6 text-primary" />
-                ) : (
-                  <ToggleLeft className="w-6 h-6 text-gray-400" />
-                )}
-                <span className="font-medium">
-                  {showZones ? 'Hide' : 'Show'} Key Zones
-                </span>
-              </button>
+              <div className="flex flex-wrap gap-4">
+                <button
+                  onClick={() => setShowZones(!showZones)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors"
+                >
+                  {showZones ? (
+                    <ToggleRight className="w-6 h-6 text-primary" />
+                  ) : (
+                    <ToggleLeft className="w-6 h-6 text-gray-400" />
+                  )}
+                  <span className="font-medium">
+                    {showZones ? 'Hide' : 'Show'} Key Zones
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setShowEmas(!showEmas)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors"
+                >
+                  {showEmas ? (
+                    <Eye className="w-6 h-6 text-primary" />
+                  ) : (
+                    <EyeOff className="w-6 h-6 text-gray-400" />
+                  )}
+                  <span className="font-medium">
+                    {showEmas ? 'Hide' : 'Show'} EMAs
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors"
+                >
+                  {darkMode ? (
+                    <Sun className="w-6 h-6 text-primary" />
+                  ) : (
+                    <Moon className="w-6 h-6 text-gray-400" />
+                  )}
+                  <span className="font-medium">
+                    {darkMode ? 'Light' : 'Dark'} Mode
+                  </span>
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -171,6 +203,8 @@ export default function Home() {
                 data={data}
                 zones={zones}
                 showZones={showZones}
+                showEmas={showEmas}
+                darkMode={darkMode}
                 ticker={ticker}
                 timeframe={timeframe}
               />

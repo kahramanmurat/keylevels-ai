@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 
 interface TickerSearchProps {
   onSearch: (ticker: string) => void;
@@ -67,9 +67,14 @@ export default function TickerSearch({ onSearch, loading = false }: TickerSearch
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-primary hover:text-primary-dark disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-primary hover:text-primary-dark disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+          title={loading ? "Loading..." : "Search"}
         >
-          <Search className="w-5 h-5" />
+          {loading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Search className="w-5 h-5" />
+          )}
         </button>
       </form>
 

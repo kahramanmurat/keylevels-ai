@@ -13,6 +13,10 @@ export interface OHLCVData {
   ema_20?: number;
   ema_50?: number;
   ema_200?: number;
+  macd?: number;
+  macd_signal?: number;
+  macd_histogram?: number;
+  rsi?: number;
 }
 
 export interface KeyZone {

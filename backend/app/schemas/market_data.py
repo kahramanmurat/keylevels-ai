@@ -15,6 +15,10 @@ class OHLCVData(BaseModel):
     ema_20: Optional[float] = None
     ema_50: Optional[float] = None
     ema_200: Optional[float] = None
+    macd: Optional[float] = None
+    macd_signal: Optional[float] = None
+    macd_histogram: Optional[float] = None
+    rsi: Optional[float] = None
 
 
 class KeyZone(BaseModel):
